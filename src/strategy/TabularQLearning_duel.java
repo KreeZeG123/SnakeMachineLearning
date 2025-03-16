@@ -75,14 +75,16 @@ public class TabularQLearning_duel extends Strategy {
 		Set<Position> snakeHeadPos = new HashSet<>();
 		Set<Position> snakesBodyPos = new HashSet<>();
 		snakeGame.getSnakes().forEach((snake) -> {
-			ArrayList<Position> snakePos = snake.getPositions();
-			if (snake.getId() == idxSnake) {
-				mainSnakeHead.set(snakePos.getFirst());
-				mainSnakePos.addAll(snakePos.subList(1, snakePos.size()));
-			}
-			else {
-				snakeHeadPos.add(snakePos.getFirst());
-				snakesBodyPos.addAll(snakePos.subList(1, snakePos.size()));
+			if (!snake.isDead()) {
+				ArrayList<Position> snakePos = snake.getPositions();
+				if (snake.getId() == idxSnake) {
+					mainSnakeHead.set(snakePos.getFirst());
+					mainSnakePos.addAll(snakePos.subList(1, snakePos.size()));
+				}
+				else {
+					snakeHeadPos.add(snakePos.getFirst());
+					snakesBodyPos.addAll(snakePos.subList(1, snakePos.size()));
+				}
 			}
 		});
 		Set<Position> applesPos = new HashSet<>();
@@ -111,7 +113,7 @@ public class TabularQLearning_duel extends Strategy {
 				Position p = new Position(x, y);
 				if (walls[x][y]) {
 					continue;
-				} else if (mainSnakeHead.get().equals(p)) {
+				} else if ( mainSnakeHead.get() != null && mainSnakeHead.get().equals(p)) {
 					strBuilder.append('H');
 				} else if (mainSnakePos.contains(p)) {
 					strBuilder.append('S');

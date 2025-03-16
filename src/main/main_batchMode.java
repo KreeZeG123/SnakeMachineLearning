@@ -31,7 +31,7 @@ public class main_batchMode {
 
 		boolean randomFirstApple = true;	
 		
-		String layoutName = "layouts/alone/small_alone_with_walls.lay";
+		String layoutName = "layouts/duel/small_duel_with_walls.lay";
 
 		
 		InputMap inputMap = null;
@@ -56,8 +56,8 @@ public class main_batchMode {
 			
 		//// Préciser ici les stratégies pour chaque Snake
 		//arrayStrategies[0] = new StrategyAdvanced();
-		arrayStrategies[0] = new TabularQLearning_solo(100, epsilon, gamma, alpha);
-		//arrayStrategies[1] = new StrategyAdvanced();
+		arrayStrategies[0] = new TabularQLearning_duel(100, epsilon, gamma, alpha);
+		arrayStrategies[1] = new TabularQLearning_duel(100, epsilon, gamma, alpha);
 
 		
 	   
