@@ -15,14 +15,13 @@ import view.ViewSnakeGame;
 public class main_debugMode {
 
 	public static void main(String[] args) {
-		
+
 		double gamma = 0.95;
 		double epsilon = 0.2;
 		double alpha = 0.01;
 
 		boolean randomFirstApple = true;
-		
-		
+
 		String layoutName = "layouts/alone/small_alone_with_walls.lay";
 		
 		InputMap inputMap = null;
@@ -36,8 +35,8 @@ public class main_debugMode {
 
 		
 		Strategy[] arrayStrategies = new Strategy[inputMap.getStart_snakes().size()];
-		
-		arrayStrategies[0] = new StrategyRandom();
+
+		arrayStrategies[0] = new ApproximateQLearning_solo(100, epsilon, gamma, alpha);
 		
 
 		

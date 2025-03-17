@@ -24,10 +24,10 @@ import view.ViewSnakeGame;
 public class main_batchMode {
 
 	public static void main(String[] args) {
-		
+
 		double gamma = 0.95;
 		double epsilon = 0.2;
-		double alpha = 0.1;
+		double alpha = 0.01;
 
 		boolean randomFirstApple = true;	
 		
