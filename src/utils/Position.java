@@ -51,13 +51,19 @@ public class Position implements Serializable{
 		this.y = y;
 	}
 
-	public static Position getNewPosition(Position currentPosition, AgentAction action) {
-        return switch (action) {
-            case MOVE_UP -> new Position(currentPosition.getX(), currentPosition.getY() - 1);
-            case MOVE_DOWN -> new Position(currentPosition.getX(), currentPosition.getY() + 1);
-            case MOVE_LEFT -> new Position(currentPosition.getX() - 1, currentPosition.getY());
-            case MOVE_RIGHT -> new Position(currentPosition.getX() + 1, currentPosition.getY());
-            default -> currentPosition;
-        };
+	public static Position getNewPosition(Position currentPosition, AgentAction action, int maxX, int maxY) {
+		int newX = currentPosition.getX();
+		int newY = currentPosition.getY();
+
+		switch (action) {
+			case MOVE_UP -> newY = Math.max(0, newY - 1); // Empêche de sortir par le haut
+			case MOVE_DOWN -> newY = Math.min(maxY - 1, newY + 1); // Empêche de sortir par le bas
+			case MOVE_LEFT -> newX = Math.max(0, newX - 1); // Empêche de sortir par la gauche
+			case MOVE_RIGHT -> newX = Math.min(maxX - 1, newX + 1); // Empêche de sortir par la droite
+			default -> {} // Ne change rien si action invalide
+		}
+
+		return new Position(newX, newY);
 	}
+
 }

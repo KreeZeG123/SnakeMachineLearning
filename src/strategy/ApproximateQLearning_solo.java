@@ -11,17 +11,17 @@ import utils.Position;
 
 public class ApproximateQLearning_solo extends Strategy {
 	private double[] w; // Poids du modèle
-	private static final int numFeatures = 5; // Nombre de caractéristiques
-	private Random random;
+	private static final int d = 6; // Nombre de caractéristiques
+	private final Random random;
 
 	public ApproximateQLearning_solo(int nbAction, double espilon, double gamma, double alpha) {
 		super(nbAction, alpha, espilon, gamma);
-		this.w = new double[ApproximateQLearning_solo.numFeatures];
+		this.w = new double[ApproximateQLearning_solo.d];
 		this.random = new Random();
 
 		// Initialisation aléatoire des poids
-		for (int i = 0; i < numFeatures; i++) {
-			w[i] = random.nextDouble();
+		for (int i = 0; i < d; i++) {
+			w[i] = (random.nextDouble() - 0.5) * 0.1; // Petites valeurs entre -0.05 et 0.05
 		}
 	}
 
@@ -37,7 +37,7 @@ public class ApproximateQLearning_solo extends Strategy {
 			for (AgentAction action : AgentAction.values()) {
 				double[] f = extractFeatures(snakeGame, action , idxSnake);
 				double QValue = 0;
-				for (int i = 0; i < numFeatures; i++) {
+				for (int i = 0; i < d; i++) {
 					QValue += w[i] * f[i];
 				}
 				if ( QValue > maxQValue ) {
@@ -53,57 +53,59 @@ public class ApproximateQLearning_solo extends Strategy {
 	public void update(int idxSnake, SnakeGame state, AgentAction action, SnakeGame nextState, int reward, boolean isFinalState) {
 
 		double maxQValue = Double.NEGATIVE_INFINITY;
-		AgentAction bestAction = null;
-		double[] bestActionFeatures = null;
 		for (AgentAction a : AgentAction.values()) {
-			double[] f = extractFeatures(state, a , idxSnake);
+			double[] f = extractFeatures(nextState, a , idxSnake);
 			double QValue = 0;
-			for (int i = 0; i < numFeatures; i++) {
+			for (int i = 0; i < d; i++) {
 				QValue += w[i] * f[i];
 			}
 			if ( QValue > maxQValue ) {
 				maxQValue = QValue;
-				bestAction = a;
-				bestActionFeatures = f;
 			}
 		}
 
 		double targetQ = reward + this.gamma * maxQValue;
 
 		double[] f = extractFeatures(state, action , idxSnake);
-		double QValue =
+		double QValue = 0;
+		for (int i = 0; i < d; i++) {
+			QValue += w[i] * f[i];
+		}
 
-		for (int i = 0; i < numFeatures; i++) {
-			w[i] = w[1] - 2 * alpha * f[i] * (maxQValue - targetQ);
+		for (int i = 0; i < d; i++) {
+			w[i] = w[i] - 2 * alpha * f[i] * (QValue - targetQ);
 		}
 	}
 
 	private double[] extractFeatures(SnakeGame state, AgentAction action, int idxSnake) {
-		double[] features = new double[ApproximateQLearning_solo.numFeatures];
+		double[] features = new double[ApproximateQLearning_solo.d];
 
 		Snake snake = state.getSnakes().get(idxSnake);
 
+		// Feature 0 : Biais
+		features[0] = 1.0;
+
 		// Feature 1 : présence d'une pomme dans la prochaine position
-		features[0] = isAppleInNextMove(state, action, snake) ? 1.0 : 0.0;
+		features[1] = isAppleInNextMove(state, action, snake) ? 1.0 : 0.0;
 
 		// Feature 2 : distance de la pomme (normalisée)
-		features[1] = normalizedAppleDistance(state, snake);
+		features[2] = normalizedAppleDistance(state, snake);
 
 		// Feature 3 : risque de mort (collision avec mur ou corps)
-		features[2] = willDieNextMove(state, action, snake) ? 1.0 : 0.0;
+		features[3] = willDieNextMove(state, action, snake) ? 1.0 : 0.0;
 
 		// Feature 4 : distance normalisée au mur
-		features[3] = normalizedWallDistance(state, snake);
+		features[4] = normalizedWallDistance(state, snake);
 
 		// Feature 5 : alignement avec la pomme (1 si aligné sur X ou Y, sinon 0)
-		features[4] = isAlignedWithApple(state, snake) ? 1.0 : 0.0;
+		features[5] = isAlignedWithApple(state, snake) ? 1.0 : 0.0;
 
 		return features;
 	}
 
 	private boolean isAppleInNextMove(SnakeGame state, AgentAction action, Snake snake) {
 		Position snakeHeadPos = snake.getPositions().getFirst();
-		Position nextPos = Position.getNewPosition(snakeHeadPos, action);
+		Position nextPos = Position.getNewPosition(snakeHeadPos, action, snake.getX(), state.getSizeY());
 		int nextX = nextPos.getX();
 		int nextY = nextPos.getY();
 
@@ -119,6 +121,8 @@ public class ApproximateQLearning_solo extends Strategy {
 		Position snakeHeadPos = snake.getPositions().getFirst();
 		int headX = snakeHeadPos.getX();
 		int headY = snakeHeadPos.getY();
+		int gridSizeX = state.getSizeX();
+		int gridSizeY = state.getSizeY();
 		int minDistance = Integer.MAX_VALUE;
 
 		for (Item item : state.getItems()) {
@@ -127,13 +131,14 @@ public class ApproximateQLearning_solo extends Strategy {
 				minDistance = Math.min(minDistance, distance);
 			}
 		}
-		if ( minDistance == Integer.MAX_VALUE) return 0;
-		return 1.0 / (1.0 + minDistance);
+
+		return (double) minDistance / (gridSizeX + gridSizeY);
+
 	}
 
 	private boolean willDieNextMove(SnakeGame state, AgentAction action, Snake snake) {
 		Position snakeHeadPos = snake.getPositions().getFirst();
-		Position nextPos = Position.getNewPosition(snakeHeadPos, action);
+		Position nextPos = Position.getNewPosition(snakeHeadPos, action, state.getSizeX(), state.getSizeY());
 		int nextX = nextPos.getX();
 		int nextY = nextPos.getY();
 
@@ -153,7 +158,7 @@ public class ApproximateQLearning_solo extends Strategy {
 		int distDown = gridSizeY - headY - 1;
 
 		int minDistance = Math.min(Math.min(distLeft, distRight), Math.min(distUp, distDown));
-		return 1.0 / (1.0 + minDistance);
+		return (double) minDistance / (gridSizeX + gridSizeY);
 	}
 
 	private boolean isAlignedWithApple(SnakeGame state, Snake snake) {
