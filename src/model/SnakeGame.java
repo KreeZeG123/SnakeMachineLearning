@@ -545,6 +545,19 @@ public class SnakeGame extends Game implements Serializable{
 
 	}
 
+	public boolean isWall(int x, int y) {
+		return walls[x][y];
+	}
+
+	public boolean isOccupiedBySnake(int x, int y) {
+		Position pos = new Position(x, y);
+		for(Snake snake : snakes) {
+			if ( snake.getPositions().contains(pos) )
+				return true;
+		}
+		return false;
+	}
+
 
 	public void removeSnake() {
 

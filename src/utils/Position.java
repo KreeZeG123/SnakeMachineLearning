@@ -50,4 +50,14 @@ public class Position implements Serializable{
 	public void setY(int y) {
 		this.y = y;
 	}
+
+	public static Position getNewPosition(Position currentPosition, AgentAction action) {
+        return switch (action) {
+            case MOVE_UP -> new Position(currentPosition.getX(), currentPosition.getY() - 1);
+            case MOVE_DOWN -> new Position(currentPosition.getX(), currentPosition.getY() + 1);
+            case MOVE_LEFT -> new Position(currentPosition.getX() - 1, currentPosition.getY());
+            case MOVE_RIGHT -> new Position(currentPosition.getX() + 1, currentPosition.getY());
+            default -> currentPosition;
+        };
+	}
 }
