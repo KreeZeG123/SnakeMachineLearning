@@ -1,9 +1,7 @@
 package model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.Random;
+import java.util.*;
 
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -62,6 +60,8 @@ public class SnakeGame extends Game implements Serializable{
 	private transient Strategy[] strats;
 	
 	boolean randomFirstApple;
+
+	private Boolean aucunMur = null;
 
 	public SnakeGame(int maxTurn, InputMap inputMap, boolean randomFirstApple) {
 
@@ -654,6 +654,63 @@ public class SnakeGame extends Game implements Serializable{
 	public int[] getTabTotalScoreSnakes() {
 		return tabTotalScoreSnakes;
 	}
-	
+
+	public boolean shouldUseManhattanWrap(Snake snake) {
+		// Renvoie vrai si le snake est invincible car il peut passer au travers des murs
+		if (snake.getInvincibleTimer() > 0) {
+			return true;
+		}
+
+		// Sinon on regarde si c'est une map sans aucun murs pour globaliser
+		if ( this.aucunMur == null ) {
+			boolean sansWall = true;
+			for (boolean[] row : this.getWalls()) {
+				for (boolean wall : row) {
+					if (wall) {
+						sansWall = false;
+						break;
+					}
+				}
+				if (!sansWall) break;
+			}
+			this.aucunMur = sansWall;
+		}
+		return this.aucunMur;
+	}
+
+
+	public Set<Position> getWallsPositions() {
+		Set<Position> wallsPositions = new HashSet<>();
+		for (int x = 0; x < this.getSizeX(); x++) {
+			for (int y = 0; y < this.getSizeY(); y++) {
+				if (this.getWalls()[x][y]) {
+					wallsPositions.add(new Position(x, y));
+				}
+			}
+		}
+		return wallsPositions;
+	}
+
+	public Set<Position> getItemsPositions(ItemType itemType) {
+		return getItemsPositions(Collections.singletonList(itemType));
+	}
+
+	public Set<Position> getItemsPositions(List<ItemType> itemTypes) {
+		Set<Position> itemsPositions = new HashSet<>();
+		for (Item item : items) {
+			if (itemTypes.contains(item.getItemType())) {
+				itemsPositions.add(item.getPosition());
+			}
+		}
+		return itemsPositions;
+	}
+
+	public Set<Position> getSnakesPositions() {
+		Set<Position> snakesPositions = new HashSet<>();
+		for ( Snake snake : snakes ) {
+			snakesPositions.addAll(snake.getPositions());
+		}
+		return snakesPositions;
+	}
 	
 }

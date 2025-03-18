@@ -3,6 +3,7 @@ package item;
 import java.io.Serializable;
 
 import utils.ItemType;
+import utils.Position;
 
 public class Item implements Serializable {
 
@@ -48,6 +49,10 @@ public class Item implements Serializable {
 
 	public void setItemType(ItemType itemType) {
 		this.itemType = itemType;
+	}
+
+	public Position getPosition() {
+		return new Position(x, y);
 	}
 	
 }

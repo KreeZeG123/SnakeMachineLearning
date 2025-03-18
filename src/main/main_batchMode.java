@@ -1,6 +1,7 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import controller.ControllerSnakeGame;
 import model.Game;
@@ -26,12 +27,12 @@ public class main_batchMode {
 	public static void main(String[] args) {
 
 		double gamma = 0.95;
-		double epsilon = 0.2;
-		double alpha = 0.01;
+		double epsilon = 0.5;
+		double alpha = 0.001;
 
 		boolean randomFirstApple = true;	
 		
-		String layoutName = "layouts/alone/small_alone_with_walls.lay";
+		String layoutName = "layouts/duel/medium_duel_with_walls.lay";
 
 		InputMap inputMap = null;
 		
@@ -55,13 +56,14 @@ public class main_batchMode {
 			
 		//// Préciser ici les stratégies pour chaque Snake
 		//arrayStrategies[0] = new StrategyAdvanced();
-		arrayStrategies[0] = new ApproximateQLearning_solo(100, epsilon, gamma, alpha);
-		//arrayStrategies[1] = new TabularQLearning_duel(100, epsilon, gamma, alpha);
+		arrayStrategies[0] = new ApproximateQLearning_duel(300, epsilon, gamma, alpha);
+		//arrayStrategies[1] = new TabularQLearning_solo(300, epsilon, gamma, alpha);
+		arrayStrategies[1] = new StrategyAdvanced();
 
 		
 	   
 			
-	    	
+
 	    	
 		//Nombre de simulations séquentielles lancees pour calculer la recompense moyenne en mode train
 		int Ntrain = 100;
@@ -202,7 +204,7 @@ public class main_batchMode {
 		}
 		
 		snakeGame.setStrategies(arrayStrats);
-		snakeGame.setTime(500);
+		snakeGame.setTime(200);
 		
 		snakeGame.init();
 		
@@ -213,7 +215,11 @@ public class main_batchMode {
 		
 		snakeGame.run();
 		System.out.println("Time " + snakeGame.getTime());
-		
+
+		System.out.println("w: " + Arrays.toString(((ApproximateQLearning_duel) arrayStrats[0]).getW()));
+		System.out.println("f: " + Arrays.toString(((ApproximateQLearning_duel) arrayStrats[0]).getCurrent_f()));
+
+		System.out.println("=======================");
 		
 
 //		try {

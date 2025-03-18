@@ -17,7 +17,7 @@ public class main_debugMode {
 	public static void main(String[] args) {
 
 		double gamma = 0.95;
-		double epsilon = 0.2;
+		double epsilon = 0.5;
 		double alpha = 0.01;
 
 		boolean randomFirstApple = true;
