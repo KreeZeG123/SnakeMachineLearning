@@ -28,8 +28,8 @@ public class main_batchMode {
 	public static void main(String[] args) {
 
 		double gamma = 0.95;
-		double epsilon = 0.5;
-		double alpha = 0.01;
+		double epsilon = 0.2;
+		double alpha = 0.1;
 
 		boolean randomFirstApple = true;	
 		
@@ -57,21 +57,25 @@ public class main_batchMode {
 			
 		//// Préciser ici les stratégies pour chaque Snake
 		//arrayStrategies[0] = new StrategyAdvanced();
-		//arrayStrategies[0] = new TabularQLearning_solo(100, epsilon, gamma, alpha);
-		//arrayStrategies[0] = new TabularQLearning_duel(100, epsilon, gamma, alpha);
-		//arrayStrategies[0] = new ApproximateQLearning_solo(100, epsilon, gamma, alpha);
-		//arrayStrategies[0] = new ApproximateQLearning_duel(100, epsilon, gamma, alpha);
-		arrayStrategies[0] = new DeepQLearningStrategy(
-				100,
+		//arrayStrategies[0] = new TabularQLearning_solo(4, epsilon, gamma, alpha);
+		//arrayStrategies[0] = new TabularQLearning_duel(4, epsilon, gamma, alpha);
+		arrayStrategies[0] = new ApproximateQLearning_solo(4, epsilon, gamma, alpha);
+		//arrayStrategies[0] = new ApproximateQLearning_duel(4, epsilon, gamma, alpha);
+		/*arrayStrategies[0] = new DeepQLearningStrategy(
+				AgentAction.values().length,
 				epsilon,
+				0.9995,
+				0.1,
 				gamma,
 				alpha,
-				5,
-				5,
+				1,
+				32,
 				5 * 5 * 5
-		);
+		);*/
 
-		//arrayStrategies[1] = new TabularQLearning_solo(100, epsilon, gamma, alpha);
+		//arrayStrategies[1] = new StrategyRandom();
+		//arrayStrategies[1] = new TabularQLearning_duel(4, epsilon, gamma, alpha);
+		//arrayStrategies[1] = new TabularQLearning_solo(4, epsilon, gamma, alpha);
 		//arrayStrategies[1] = new StrategyAdvanced();
 
 		
@@ -99,7 +103,7 @@ public class main_batchMode {
 			System.out.println("Compute score in test mode");
 			launchParallelGames(Ntest, maxTurnSnakeGame, inputMap, arrayStrategies, false, randomFirstApple);
 					
-			if(cpt%20 == 0) {
+			if(cpt%100 == 0) {
 
 				System.out.println("Visualization mode");
 				vizualize(maxTurnSnakeGame, inputMap, arrayStrategies, false, randomFirstApple, controllerSnakeGame,  viewSnakeGame);

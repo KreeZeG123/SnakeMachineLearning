@@ -71,7 +71,7 @@ public class NeuralNetWorkDL4J {
 	{
 		
 		
-		double[][] input = new double[trainExamples.size()][this.numOutputs];	
+		double[][] input = new double[trainExamples.size()][this.numInputs];
 		double[][] output = new double[trainExamples.size()][trainExamples.get(0).getX().length];
 		
 				

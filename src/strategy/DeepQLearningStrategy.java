@@ -19,6 +19,8 @@ public class DeepQLearningStrategy extends Strategy {
 	NeuralNetWorkDL4J nn;
 
 	double baseEpsilon;
+	double epsilonMul;
+	double epsilonMin;
 
 	int d = 5;
 
@@ -29,12 +31,14 @@ public class DeepQLearningStrategy extends Strategy {
 	int actionsNumbers = AgentAction.values().length;
 	ArrayList<TrainExample> trainExamples;
 
-	public DeepQLearningStrategy(int nbAction, double epsilon, double gamma, double alpha, int nEpochs, int batchSize, int encdodeStageSize) {
+	public DeepQLearningStrategy(int nbAction, double epsilon, double epsilonMul, double epsilonMin, double gamma, double alpha, int nEpochs, int batchSize, int encdodeStageSize) {
 		super(nbAction, epsilon, gamma, alpha);
 
 		this.nn = new NeuralNetWorkDL4J(alpha, 0,  encdodeStageSize, 4 );
 
 		this.baseEpsilon = epsilon;
+		this.epsilonMul = epsilonMul;
+		this.epsilonMin = epsilonMin;
 
 		this.nEpochs = nEpochs;
 		this.batchSize = batchSize;
@@ -66,9 +70,9 @@ public class DeepQLearningStrategy extends Strategy {
 	@Override
 	public void update(int idxSnake, SnakeGame state, AgentAction action, SnakeGame nextState, int reward, boolean isFinalState) {
 
-//		if (isModeTrain()) {
-//			this.baseEpsilon = Math.min(0.2, this.baseEpsilon * 0.995);
-//		}
+		if (isModeTrain()) {
+			this.baseEpsilon = Math.max(this.epsilonMin, this.baseEpsilon * this.epsilonMul);
+		}
 
 		double[] nextEncodedState = encodeState(idxSnake, nextState);
 		double[] qValues_nextState = this.nn.predict(nextEncodedState);
@@ -84,9 +88,16 @@ public class DeepQLearningStrategy extends Strategy {
 
 		double[] encodedState = encodeState(idxSnake, state);
 		double[] targetQ = this.nn.predict(encodedState);
-		targetQ[action.ordinal()] = reward + gamma*maxQvalue_nextState;
+
+		double targetValue = isFinalState ? reward : reward + gamma * maxQvalue_nextState;
+		targetQ[action.ordinal()] = targetValue;
 
 		TrainExample trainExample = new TrainExample(encodedState, targetQ);
+
+		int maxMemory = 10000;
+		if (trainExamples.size() > maxMemory) {
+			trainExamples.removeFirst();
+		}
 
 		this.trainExamples.add(trainExample);
 

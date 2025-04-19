@@ -116,7 +116,7 @@ public class ApproximateQLearning_solo extends Strategy {
 	@Override
 	public void update(int idxSnake, SnakeGame state, AgentAction action, SnakeGame nextState, int reward, boolean isFinalState) {
 
-		epsilon = Double.max(0.2, epsilon * 0.95);
+		this.base_epsilon = Double.max(0.2, this.base_epsilon * 0.95);
 
 		int actionNumbers = AgentAction.values().length;
 
