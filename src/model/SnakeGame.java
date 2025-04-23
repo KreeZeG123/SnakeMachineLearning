@@ -22,10 +22,10 @@ public class SnakeGame extends Game implements Serializable{
 
 
 
-	private static final int REWARD_APPLE = 1;
-	private static final int REWARD_ITEM = 1;
-	private static final int REWARD_DEAD = -10;
-	private static final int REWARD_KILL = 10;
+	public static final int REWARD_APPLE = 1;
+	public static final int REWARD_ITEM = 1;
+	public static final int REWARD_DEAD = -10;
+	public static final int REWARD_KILL = 10;
 	
 	
 	
@@ -549,11 +549,16 @@ public class SnakeGame extends Game implements Serializable{
 		return walls[x][y];
 	}
 
-	public boolean isOccupiedBySnake(int x, int y) {
+	public boolean isOccupiedBySnake(int x, int y, int snakeID) {
 		Position pos = new Position(x, y);
 		for(Snake snake : snakes) {
-			if ( snake.getPositions().contains(pos) )
-				return true;
+			if ( snake.getId() == snakeID ) {
+				if ( snake.getPositions().subList(1, snake.getPositions().size()).contains( pos ) ) return true;
+			}
+			else {
+				if ( snake.getPositions().contains(pos) ) return true;
+
+			}
 		}
 		return false;
 	}

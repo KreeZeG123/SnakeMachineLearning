@@ -49,6 +49,10 @@ public class DeepQLearningStrategy extends Strategy {
 	@Override
 	public AgentAction chooseAction(int idxSnake, SnakeGame snakeGame) {
 
+		if (isModeTrain()) {
+			this.epsilon = Math.max(this.epsilonMin, this.epsilon * this.epsilonMul);
+		}
+
 		if(random.nextDouble() < this.epsilon) {
 			int rdmActionNumber = random.nextInt(actionsNumbers);
 			return AgentAction.values()[rdmActionNumber];
@@ -69,10 +73,6 @@ public class DeepQLearningStrategy extends Strategy {
 
 	@Override
 	public void update(int idxSnake, SnakeGame state, AgentAction action, SnakeGame nextState, int reward, boolean isFinalState) {
-
-		if (isModeTrain()) {
-			this.baseEpsilon = Math.max(this.epsilonMin, this.baseEpsilon * this.epsilonMul);
-		}
 
 		double[] nextEncodedState = encodeState(idxSnake, nextState);
 		double[] qValues_nextState = this.nn.predict(nextEncodedState);

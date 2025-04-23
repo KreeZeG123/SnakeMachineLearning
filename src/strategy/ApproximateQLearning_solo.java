@@ -1,14 +1,9 @@
 package strategy;
 
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
-
 import agent.Snake;
 import item.Item;
 import model.SnakeGame;
-import strategy.algorithms.AlgoAEtoile;
-import strategy.algorithms.DistManhattan;
 import utils.AgentAction;
 import utils.ItemType;
 import utils.Position;
@@ -19,7 +14,7 @@ public class ApproximateQLearning_solo extends Strategy {
 
 	private final Random random = new Random();
 
-	private double[] w;
+	private final double[] w;
 
 	double[] current_f;
 
@@ -51,16 +46,13 @@ public class ApproximateQLearning_solo extends Strategy {
 		features[0] = 1.0;
 
 		// Feature 1 : Présence d'une pomme dans la prochaine position (Boosté)
-		features[1] = isAppleInNextMove(state, action, snake) ? 10.0 : 0.0;
+		features[1] = isAppleInNextMove(state, action, snake) ? 1 : 0;
 
 		// Feature 2 : Distance à la pomme (Inversée pour favoriser la proximité)
-		features[2] = 5 * (1 - normalizedAppleDistance(state, snake));
+		features[2] = (1 - normalizedAppleDistance(state, snake, action));
 
 		// Feature 3 : Risque de mort (Pénalité renforcée)
-		features[3] = willDieNextMove(state, action, snake) ? -15 : 0.0;
-
-		// Feature 4 : Distance au mur (Inversée pour favoriser les zones sûres)
-		features[4] = -2.5 * (1 - normalizedWallDistance(state, snake));
+		features[3] = willDieNextMove(state, action, snake) ? -1 : 0.0;
 
 		return features;
 	}
@@ -89,6 +81,12 @@ public class ApproximateQLearning_solo extends Strategy {
 			qs[i] = scalarProduct(w, fs[i]);
 		}
 
+		if ( this.epsilon != 0 ) {
+			this.base_epsilon = Double.max(0.2, this.base_epsilon * 0.9995);
+			//System.out.println(this.epsilon + " => " + this.base_epsilon);
+		}
+
+
 		if(random.nextDouble() < this.epsilon) {
 
 			int rdmActionNumber = random.nextInt(actionNumbers);
@@ -116,7 +114,6 @@ public class ApproximateQLearning_solo extends Strategy {
 	@Override
 	public void update(int idxSnake, SnakeGame state, AgentAction action, SnakeGame nextState, int reward, boolean isFinalState) {
 
-		this.base_epsilon = Double.max(0.2, this.base_epsilon * 0.95);
 
 		int actionNumbers = AgentAction.values().length;
 
@@ -168,10 +165,11 @@ public class ApproximateQLearning_solo extends Strategy {
 		return false;
 	}
 
-	private double normalizedAppleDistance(SnakeGame state, Snake snake) {
+	private double normalizedAppleDistance(SnakeGame state, Snake snake, AgentAction action) {
 		Position snakeHeadPos = snake.getPositions().getFirst();
-		int headX = snakeHeadPos.getX();
-		int headY = snakeHeadPos.getY();
+		Position nextPos = Position.getNewPosition(snakeHeadPos, action, state.getSizeX(), state.getSizeY());
+		int headX = nextPos.getX();
+		int headY = nextPos.getY();
 		int gridSizeX = state.getSizeX();
 		int gridSizeY = state.getSizeY();
 		int minDistance = Integer.MAX_VALUE;
@@ -183,8 +181,11 @@ public class ApproximateQLearning_solo extends Strategy {
 			}
 		}
 
-		return (double) minDistance / (gridSizeX * gridSizeY);
+		// Au cas où il n'y a pas de pomme (ça peut arriver ?)
+		if (minDistance == Integer.MAX_VALUE) return 1.0;
 
+		// Normalisation améliorée
+		return (double) minDistance / (gridSizeX + gridSizeY);
 	}
 
 	private boolean willDieNextMove(SnakeGame state, AgentAction action, Snake snake) {
@@ -193,22 +194,33 @@ public class ApproximateQLearning_solo extends Strategy {
 		int nextX = nextPos.getX();
 		int nextY = nextPos.getY();
 
-		return state.isWall(nextX, nextY) || state.isOccupiedBySnake(nextX, nextY);
+		return state.isWall(nextX, nextY) || state.isOccupiedBySnake(nextX, nextY, snake.getId());
 	}
 
-	private double normalizedWallDistance(SnakeGame state, Snake snake) {
+	private double normalizedBorderDistance(SnakeGame state, Snake snake, AgentAction action) {
 		Position snakeHeadPos = snake.getPositions().getFirst();
-		int headX = snakeHeadPos.getX();
-		int headY = snakeHeadPos.getY();
+		Position nextPos = Position.getNewPosition(snakeHeadPos, action, state.getSizeX(), state.getSizeY());
+
+		int headX = nextPos.getX();
+		int headY = nextPos.getY();
 		int gridSizeX = state.getSizeX();
 		int gridSizeY = state.getSizeY();
 
-		int distLeft = headX;
-		int distRight = gridSizeX - headX - 1;
-		int distUp = headY;
-		int distDown = gridSizeY - headY - 1;
+		// Distances aux bords
+        int distRight = gridSizeX - headX - 1;
+        int distDown = gridSizeY - headY - 1;
 
-		int minDistance = Math.min(Math.min(distLeft, distRight), Math.min(distUp, distDown));
-		return (double) minDistance / (gridSizeX * gridSizeY);
+		// Distance minimale à un bord
+		int minDistance = Math.min(Math.min(headX, distRight), Math.min(headY, distDown));
+
+		// Distance maximale possible à un bord (pour normaliser)
+		int maxPossibleDistance = Math.min(gridSizeX, gridSizeY) / 2;
+
+		// Évite la division par zéro
+		if (maxPossibleDistance == 0) {
+			return 0.0;
+		}
+
+		return (double) minDistance / maxPossibleDistance;
 	}
 }

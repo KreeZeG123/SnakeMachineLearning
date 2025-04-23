@@ -114,5 +114,9 @@ public abstract class Game extends Observable implements Runnable, Serializable{
 	public int getTurn() {
 		return turn;
 	}
+
+	public int getMaxTurn() {
+		return maxTurn;
+	}
 	
 }
