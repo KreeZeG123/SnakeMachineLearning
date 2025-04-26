@@ -56,11 +56,11 @@ public class Position implements Serializable{
 		int newY = currentPosition.getY();
 
 		switch (action) {
-			case MOVE_UP -> newY = Math.max(0, newY - 1); // Empêche de sortir par le haut
-			case MOVE_DOWN -> newY = Math.min(maxY - 1, newY + 1); // Empêche de sortir par le bas
-			case MOVE_LEFT -> newX = Math.max(0, newX - 1); // Empêche de sortir par la gauche
-			case MOVE_RIGHT -> newX = Math.min(maxX - 1, newX + 1); // Empêche de sortir par la droite
-			default -> {} // Ne change rien si action invalide
+			case MOVE_UP -> newY = (newY - 1 + maxY) % maxY;
+			case MOVE_DOWN -> newY = (newY + 1) % maxY;
+			case MOVE_LEFT -> newX = (newX - 1 + maxX) % maxX;
+			case MOVE_RIGHT -> newX = (newX + 1) % maxX;
+			default -> {}
 		}
 
 		return new Position(newX, newY);

@@ -10,7 +10,7 @@ import utils.Position;
 import java.util.List;
 import java.util.Random;
 
-public class ApproximateQLearning_duel_fixed_yamis extends Strategy {
+public class ApproximateQlearning_test_challenge_yamis extends Strategy {
 
     private static final int d = 5; // Nombre de caractéristiques
 
@@ -24,7 +24,7 @@ public class ApproximateQLearning_duel_fixed_yamis extends Strategy {
         return w;
     }
 
-    public ApproximateQLearning_duel_fixed_yamis() {
+    public ApproximateQlearning_test_challenge_yamis() {
         super(4, 0, 0.95, 0.1);
 
         this.w = new double[]{
@@ -168,33 +168,6 @@ public class ApproximateQLearning_duel_fixed_yamis extends Strategy {
         int nextY = nextPos.getY();
 
         return isWall(state, nextX, nextY) || isOccupiedBySnake(state, nextX, nextY, snake.getId());
-    }
-
-    private double normalizedBorderDistance(SnakeGame state, Snake snake, AgentAction action) {
-        Position snakeHeadPos = snake.getPositions().getFirst();
-        Position nextPos = getNewPosition(snakeHeadPos, action, state.getSizeX(), state.getSizeY());
-
-        int headX = nextPos.getX();
-        int headY = nextPos.getY();
-        int gridSizeX = state.getSizeX();
-        int gridSizeY = state.getSizeY();
-
-        // Distances aux bords
-        int distRight = gridSizeX - headX - 1;
-        int distDown = gridSizeY - headY - 1;
-
-        // Distance minimale à un bord
-        int minDistance = Math.min(Math.min(headX, distRight), Math.min(headY, distDown));
-
-        // Distance maximale possible à un bord (pour normaliser)
-        int maxPossibleDistance = Math.min(gridSizeX, gridSizeY) / 2;
-
-        // Évite la division par zéro
-        if (maxPossibleDistance == 0) {
-            return 0.0;
-        }
-
-        return (double) minDistance / maxPossibleDistance;
     }
 
     private double normalizedNeareastBiggerSnakeDistance(SnakeGame state, Snake snake) {

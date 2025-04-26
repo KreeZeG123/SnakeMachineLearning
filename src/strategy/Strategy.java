@@ -56,8 +56,8 @@ public abstract class Strategy {
 		}
 	}
 
-
-	
-
+	public double[] getW() {
+		return new double[]{-999};
+	}
 	
 }

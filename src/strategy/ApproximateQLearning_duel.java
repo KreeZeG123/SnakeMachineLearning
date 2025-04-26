@@ -88,7 +88,7 @@ public class ApproximateQLearning_duel extends Strategy {
 		}
 
 		if ( this.epsilon != 0 ) {
-			this.base_epsilon = Double.max(0.2, this.base_epsilon * 0.9995);
+			this.epsilon = Double.max(0.2, this.epsilon * 0.9995);
 			//System.out.println(this.epsilon + " => " + this.base_epsilon);
 		}
 
@@ -159,7 +159,7 @@ public class ApproximateQLearning_duel extends Strategy {
 
 	private boolean isAppleInNextMove(SnakeGame state, AgentAction action, Snake snake) {
 		Position snakeHeadPos = snake.getPositions().getFirst();
-		Position nextPos = Position.getNewPosition(snakeHeadPos, action, snake.getX(), state.getSizeY());
+		Position nextPos = Position.getNewPosition(snakeHeadPos, action, state.getSizeX(), state.getSizeY());
 		int nextX = nextPos.getX();
 		int nextY = nextPos.getY();
 

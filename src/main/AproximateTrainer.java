@@ -4,9 +4,9 @@ import controller.ControllerSnakeGame;
 import model.Game;
 import model.InputMap;
 import model.SnakeGame;
-import strategy.ApproximateQLearning_duel;
-import strategy.ApproximateQLearning_duel_fixed_yamis;
+import strategy.ApproximateQlearning_test_challenge_yamis;
 import strategy.Strategy;
+import strategy.StrategyAdvanced;
 import view.PanelSnakeGame;
 import view.ViewSnakeGame;
 
@@ -17,12 +17,12 @@ public class AproximateTrainer {
 
     public static void main(String[] args) {
         double gamma = 0.95;
-        double epsilon = 1;
-        double alpha = 0.001;
+        double epsilon = 0.5;
+        double alpha = 0.1;
 
         boolean randomFirstApple = true;
 
-        String layoutName = "layouts/duel/medium_duel_no_walls.lay";
+        String layoutName = "layouts/duel/medium_duel_with_walls.lay";
 
         InputMap inputMap = null;
 
@@ -40,8 +40,8 @@ public class AproximateTrainer {
 
         Strategy[] arrayStrategies = new Strategy[inputMap.getStart_snakes().size()];
 
-        arrayStrategies[0] = new ApproximateQLearning_duel_fixed_yamis(4, epsilon, gamma, alpha);
-        arrayStrategies[1] = new ApproximateQLearning_duel(4, epsilon, gamma, alpha);
+        arrayStrategies[0] = new ApproximateQlearning_test_challenge_yamis();
+        arrayStrategies[1] = new StrategyAdvanced();
 
         //Nombre de simulations séquentielles lancees pour calculer la recompense moyenne en mode train
         int Ntrain = 100;
@@ -52,7 +52,7 @@ public class AproximateTrainer {
 
 
         //Nombre max de tours d'une partie de snake
-        int maxTurnSnakeGame = 300;
+        int maxTurnSnakeGame = 100;
 
         for(int cpt = 1; cpt < 10000000; cpt++) {
 
